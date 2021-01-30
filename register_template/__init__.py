@@ -3,8 +3,11 @@
 register_template
 ========
 
-register_template model template The System Development Kit
-Used as a template for all TheSyDeKick Entities.
+This template is for demonstrating the elementary operations fir
+rtl simulations.
+
+It utilizes Chisel generated verilog from
+https://github.com/Chisel-blocks/register_template
 
 Current docstring documentation style is Numpy
 https://numpydoc.readthedocs.io/en/latest/format.html
@@ -25,7 +28,7 @@ Role of section 'if __name__=="__main__"'
 
 This section is for self testing and interfacing of this class. The content of it is fully 
 up to designer. You may use it for example to test the functionality of the class by calling it as
-``pyhon3.6 __init__.py``
+``python3 __init__.py``
 
 or you may define how it handles the arguments passed during the invocation. In this example it is used 
 as a complete self test script for all the simulation models defined for the register_template. 
@@ -68,15 +71,15 @@ class register_template(rtl,thesdk):
                 Members of this bundle are the IO's of the entity. See documentation of thsdk package.
                 Default members defined as
 
-                self.IOS.Members['A']=IO() # Pointer for input data
-                self.IOS.Members['Z']= IO() # pointer for oputput data
-                self.IOS.Members['control_write']= IO() # Piter for control IO for rtl simulations
+                self.IOS.Members['io_A']=IO() # Pointer for input data
+                self.IOS.Members['io_B']= IO() # Pointer for oputput data
+                self.IOS.Members['control_write']= IO() # Pointer for control IO for rtl simulations
 
             model : string
                 Default 'py' for Python. See documentation of thsdk package for more details.
         
             par : boolean
-            Attribute to control parallel execution. HOw this is done is up to designer.
+            Attribute to control parallel execution. How this is done is up to designer.
             Default False
 
             queue : array_like
@@ -87,7 +90,6 @@ class register_template(rtl,thesdk):
         self.print_log(type='I', msg='Initializing %s' %(__name__)) 
         self.proplist = [ 'Rs' ];    # Properties that can be propagated from parent
         self.Rs =  100e6;            # Sampling frequency
-        self.vdd = 1.0
         self.IOS=Bundle()
         self.IOS.Members['io_A']=IO() # Pointer for input data
         self.IOS.Members['io_B']= IO()
@@ -155,7 +157,9 @@ class register_template(rtl,thesdk):
                       ionames=['io_B_0_real', 'io_B_0_imag'], datatype='scomplex')
               self.rtlparameters=dict([ ('g_Rs',self.Rs),]) #Defines the sample rate
               self.run_rtl()
-              self.IOS.Members['io_B'].Data=self.IOS.Members['io_B'].Data.astype(int)
+              # These are strings by default
+              self.IOS.Members['io_B'].Data.real=self.IOS.Members['io_B'].Data.real.astype(int)
+              self.IOS.Members['io_B'].Data.imag=self.IOS.Members['io_B'].Data.imag.astype(int)
         else:
             self.print_log(type='F', msg='Requested model currently not supported')
 
@@ -176,14 +180,14 @@ if __name__=="__main__":
     from  register_template.controller import controller as register_template_controller
     import pdb
     length=1024
-    rs=100e6
+    rs=100e6 
     # Gives random numbers over 16 range. These are interpreted as signed
     indata=(np.random.randint(-2**15-1, high=2**15,size=length).reshape(-1,1)
         +1j*np.random.randint(-2**15-1, high=2**15,size=length).reshape(-1,1)); 
     controller=register_template_controller()
     controller.Rs=rs
-    #controller.reset()
-    #controller.step_time()
+    controller.reset()
+    controller.step_time()
     controller.start_datafeed()
 
     #models=[ 'py', 'sv' ]
@@ -194,9 +198,14 @@ if __name__=="__main__":
         duts.append(d) 
         d.model=model
         d.Rs=rs
+        # For debugging
         #d.preserve_iofiles= True
-        #d.interactive_rtl=True
+        # To see in Modelsim, what happens in the simulation
+        # See Simulations/rtlsim/dofile.do for control
+        # d.interactive_rtl=True
         d.IOS.Members['io_A'].Data=indata
+        # Datafield of control_write IO is a type iofile, 
+        # Method rtl.create_connectors adopts it to be iofile of dut.  
         d.IOS.Members['control_write']=controller.IOS.Members['control_write']
         d.init()
         d.run()
@@ -224,4 +233,5 @@ if __name__=="__main__":
         printstr="./inv_%s.eps" %(duts[k].model)
         plt.show(block=False);
         figure.savefig(printstr, format='eps', dpi=300);
+    # Remove this if you do not want to see the images
     input()

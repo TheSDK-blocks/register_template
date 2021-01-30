@@ -13,20 +13,17 @@ class controller(rtl):
         return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
 
     def __init__(self,*arg): 
-        self.proplist = [ 'Rs' ];    #properties that can be propagated from parent
+        self.proplist = [ 'Rs' ];          #properties that can be propagated from parent
         self.Rs = 100e6;                   # Sampling frequency
         self.step=int(1/(self.Rs*1e-12))   #Time increment for control
         self.time=0
         self.IOS=Bundle()
         self.IOS.Members['control_write']= IO()        #We use this for writing
         _=rtl_iofile(self, name='control_write', dir='in', iotype='event', ionames=['initdone', 'reset'])
-        #Permanent pointer assignment to write io
+        # Permanent pointer assignment to write io
+        # Controller IO is of type iofile, not a dataset.
         self.IOS.Members['control_write'].Data=self.iofile_bundle.Members['control_write']
  
-        #self.IOS.Members['control_read']= IO()        #We use this for reading
-        #_=rtl_iofile(self, name='control_read', dir='out', iotype='event', datatype='int',
-        #        ionames=['initdone', 'reset'])        
-
         self.model='py';             #can be set externally, but is not propagated
         self.par= False              #By default, no parallel processing
         self.queue= []               #By default, no parallel processing
@@ -39,6 +36,7 @@ class controller(rtl):
 
         # We now where the rtl file is. 
         # Let's read in the file to have IOs defined
+        # We use dut only to get the IO definitions
         self.dut=verilog_module(file=self.vlogsrcpath 
                 + '/register_template.sv')
 
@@ -65,7 +63,7 @@ class controller(rtl):
             ('initdone',0),
         ]
 
-        #These are signals not in dut
+        #These are signals for reading not in dut
         self.newsigs_read=[
                 ]
         self.signallist_read=[
@@ -92,9 +90,7 @@ class controller(rtl):
         self.time+=kwargs.get('step',self.step)
 
     def define_control(self):
-        # This is a bit complex way of passing the data,
-        # But eventually we pass only the data , not the file
-        # Definition. File should be created in the testbench
+        # Here we define and initialize the control file
         scansigs_write=[]
         for name, val in self.signallist_write:
             # We manipulate connectors as rtl_iofile operate on those
