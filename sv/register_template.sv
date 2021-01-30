@@ -1,4 +1,4 @@
-module inverter( input reset,
+module register_template( input reset,
                  input A, 
                  output Z );
 //reset does nothing
