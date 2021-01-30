@@ -10,6 +10,8 @@ To run:
 make chisel
 make sim
 
+Simulation waits for input to finish, so hit any key to finish the simulation once done.
+
 # Demo features
 
 In register_template/__init__.py
