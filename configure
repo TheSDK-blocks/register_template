@@ -19,8 +19,8 @@ cat << EOF > ${THISDIR}/Makefile
 all: chisel sim
 #all: sim
 
-#sim:
-sim: chisel
+sim:
+#sim: chisel
 	cd ${THISDIR}/${MODULE} && \\
 	${PYL} __init__.py
 
