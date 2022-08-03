@@ -1,9 +1,9 @@
 """
-========
+=================
 register_template
-========
+=================
 
-This template is for demonstrating the elementary operations fir
+This template is for demonstrating the elementary operations for
 rtl simulations.
 
 It utilizes Chisel generated verilog from
@@ -90,7 +90,6 @@ class register_template(rtl,thesdk):
         self.print_log(type='I', msg='Initializing %s' %(__name__)) 
         self.proplist = [ 'Rs' ];    # Properties that can be propagated from parent
         self.Rs =  100e6;            # Sampling frequency
-        self.IOS=Bundle()
         self.IOS.Members['io_A']=IO() # Pointer for input data
         self.IOS.Members['io_B']= IO()
         self.IOS.Members['control_write']= IO() 
