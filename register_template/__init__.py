@@ -148,7 +148,7 @@ class register_template(rtl,thesdk):
         if self.model=='py':
             #self.main()
             self.print_log(type='F', msg='Python model currently not supported')
-        elif self.model=='sv':
+        elif self.model in [ 'sv', 'icarus' ]:
               # Verilog simulation options here
               _=rtl_iofile(self, name='io_A', dir='in', iotype='sample', 
                       ionames=['io_A_0_real', 'io_A_0_imag'], datatype='scomplex') # IO file for input A
@@ -189,8 +189,7 @@ if __name__=="__main__":
     controller.step_time()
     controller.start_datafeed()
 
-    #models=[ 'py', 'sv' ]
-    models=[ 'sv' ]
+    models=[ 'icarus' ]
     duts=[]
     for model in models:
         d=register_template()
