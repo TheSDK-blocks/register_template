@@ -154,7 +154,7 @@ class register_template(rtl,thesdk):
                       ionames=['io_A_0_real', 'io_A_0_imag'], datatype='scomplex') # IO file for input A
               _=rtl_iofile(self, name='io_B', dir='out', iotype='sample', 
                       ionames=['io_B_0_real', 'io_B_0_imag'], datatype='scomplex')
-              self.rtlparameters=dict([ ('g_Rs',self.Rs),]) #Defines the sample rate
+              self.rtlparameters=dict([ ('g_Rs',('real', self.Rs) )]) #Defines the sample rate
               self.run_rtl()
               # These are strings by default
               self.IOS.Members['io_B'].Data.real=self.IOS.Members['io_B'].Data.real.astype(int)
@@ -166,11 +166,18 @@ class register_template(rtl,thesdk):
         '''This overloads the method called by run_rtl method. It defines the read/write conditions for the files
 
         '''
-        # Input A is read to verilog simulation after 'initdone' is set to 1 by controller
-        self.iofile_bundle.Members['io_A'].verilog_io_condition='initdone'
-        # Output is read to verilog simulation when all of the outputs are valid, 
-        # and after 'initdone' is set to 1 by controller
-        self.iofile_bundle.Members['io_B'].verilog_io_condition_append(cond='&& initdone')
+        if self.lang == 'vhdl':
+            # Input A is read to verilog simulation after 'initdone' is set to 1 by controller
+            self.iofile_bundle.Members['io_A'].rtl_io_condition='(initdone=\'1\')'
+            # Output is read to verilog simulation when all of the outputs are valid, 
+            # and after 'initdone' is set to 1 by controller
+            self.iofile_bundle.Members['io_B'].rtl_io_condition_append(cond='and (initdone=\'1\')')
+        if self.lang == 'sv':
+            # Input A is read to verilog simulation after 'initdone' is set to 1 by controller
+            self.iofile_bundle.Members['io_A'].rtl_io_condition='initdone'
+            # Output is read to verilog simulation when all of the outputs are valid, 
+            # and after 'initdone' is set to 1 by controller
+            self.iofile_bundle.Members['io_B'].rtl_io_condition_append(cond='&& initdone')
 
 
 if __name__=="__main__":
