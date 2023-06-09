@@ -196,15 +196,19 @@ if __name__=="__main__":
     controller.step_time()
     controller.start_datafeed()
 
-    models=[ 'icarus' ]
+    models=[ 'sv' ]
+    lang='vhdl'
     duts=[]
     for model in models:
         d=register_template()
         duts.append(d) 
         d.model=model
+        d.lang=lang
+        d.runname='fooba'
         d.Rs=rs
         # For debugging
-        #d.preserve_iofiles= True
+        d.preserve_iofiles= True
+        d.preserve_rtlfiles= True
         # To see in Modelsim, what happens in the simulation
         # See Simulations/rtlsim/dofile.do for control
         # d.interactive_rtl=True
