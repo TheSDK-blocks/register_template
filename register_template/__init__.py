@@ -197,6 +197,7 @@ if __name__=="__main__":
     controller.start_datafeed()
 
     models=[ 'sv' ]
+    #lang='vhdl'
     lang='vhdl'
     duts=[]
     for model in models:
