@@ -197,8 +197,9 @@ if __name__=="__main__":
     controller.start_datafeed()
 
     models=[ 'sv' ]
+    # Enables VHDL testbench
     #lang='vhdl'
-    lang='vhdl'
+    lang='sv'
     duts=[]
     for model in models:
         d=register_template()
@@ -208,8 +209,8 @@ if __name__=="__main__":
         d.runname='fooba'
         d.Rs=rs
         # For debugging
-        d.preserve_iofiles= True
-        d.preserve_rtlfiles= True
+        #d.preserve_iofiles= True
+        #d.preserve_rtlfiles= True
         # To see in Modelsim, what happens in the simulation
         # See Simulations/rtlsim/dofile.do for control
         # d.interactive_rtl=True
