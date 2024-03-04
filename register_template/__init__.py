@@ -155,14 +155,16 @@ class register_template(rtl,thesdk):
               for i in range(8):
                   inputnames.extend(['io_A_%s_real' %(i), 'io_A_%s_imag' %(i)])
                   outputnames.extend(['io_B_%s_real' %(i), 'io_B_%s_imag' %(i)])
-              _=rtl_iofile(self, name='io_A', dir='in', iotype='sample', 
+              f1=rtl_iofile(self, name='io_A', dir='in', iotype='sample',
                       ionames=inputnames, datatype='scomplex') # IO file for input A
-              f=rtl_iofile(self, name='io_B', dir='out', iotype='sample', 
-                      ionames=outputnames, datatype='complex')
+              f2=rtl_iofile(self, name='io_B', dir='out', iotype='sample',
+                      ionames=outputnames, datatype='scomplex')
               if self.lang == 'sv':
-                    f.rtl_io_sync='@(negedge clock)'
+                    f1.rtl_io_sync='@(negedge clock)'
+                    f2.rtl_io_sync='@(negedge clock)'
               elif self.lang == 'vhdl':
-                    f.rtl_io_sync='falling_edge(clock)'
+                    f1.rtl_io_sync='falling_edge(clock)'
+                    f2.rtl_io_sync='falling_edge(clock)'
               self.rtlparameters=dict([ ('g_Rs',('real', self.Rs) )]) #Defines the sample rate
               self.run_rtl()
               # These are strings by default
@@ -199,6 +201,7 @@ if __name__=="__main__":
     # Gives random numbers over 16 range. These are interpreted as signed
     indata=(np.random.randint(-2**15-1, high=2**15,size=length).reshape(-1,1)
         +1j*np.random.randint(-2**15-1, high=2**15,size=length).reshape(-1,1)); 
+    indata=indata.reshape((128,8))
     controller=register_template_controller()
     controller.Rs=rs
     controller.reset()
@@ -217,11 +220,11 @@ if __name__=="__main__":
         d.lang=lang
         d.Rs=rs
         # For debugging
-        d.preserve_iofiles= True
-        d.preserve_rtlfiles= True
+        #d.preserve_iofiles= True
+        #d.preserve_rtlfiles= True
         # To see in Modelsim, what happens in the simulation
         # See Simulations/rtlsim/dofile.do for control
-        d.interactive_rtl=True
+        #d.interactive_rtl=True
         d.IOS.Members['io_A'].Data=indata.reshape((128,8))
         # Datafield of control_write IO is a type iofile, 
         # Method rtl.create_connectors adopts it to be iofile of dut.  
@@ -229,13 +232,12 @@ if __name__=="__main__":
         d.init()
         d.run()
     # Obs the latencies may be different
-    print(duts[0].IOS.Members['io_B'].Data[:,0])
     latency=[ 0 , 0, 0, 0 ]
     for k in range(len(duts)):
         hfont = {'fontname':'Sans'}
         figure,axes=plt.subplots(2,1,sharex=True)
         #x = np.linspace(0,10,11).reshape(-1,1)
-        axes[0].plot(indata[:,0].real)
+        axes[0].plot(duts[k].IOS.Members['io_A'].Data[:,0].real)
         axes[0].set_ylim(-2**15, 1.1*2**15);
         axes[0].set_xlim((0,indata.shape[0]));
         axes[0].set_ylabel('Input', **hfont,fontsize=18);
