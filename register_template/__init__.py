@@ -196,7 +196,7 @@ if __name__=="__main__":
     controller.step_time()
     controller.start_datafeed()
 
-    models=[ 'sv' ]
+    models=[ 'icarus' ]
     # Enables VHDL testbench
     #lang='vhdl'
     lang='sv'
@@ -206,7 +206,6 @@ if __name__=="__main__":
         duts.append(d) 
         d.model=model
         d.lang=lang
-        d.runname='fooba'
         d.Rs=rs
         # For debugging
         #d.preserve_iofiles= True
@@ -232,7 +231,7 @@ if __name__=="__main__":
         axes[0].set_xlim((0,indata.shape[0]));
         axes[0].set_ylabel('Input', **hfont,fontsize=18);
         axes[0].grid(True)
-        axes[1].plot(duts[k].IOS.Members['io_A'].Data.real)
+        axes[1].plot(duts[k].IOS.Members['io_B'].Data.real)
         axes[1].set_ylim(-2**15, 1.1*2**15);
         axes[0].set_xlim((0,duts[k].IOS.Members['io_A'].Data.real.shape[0]));
         axes[1].set_ylabel('Output', **hfont,fontsize=18);
