@@ -150,10 +150,19 @@ class register_template(rtl,thesdk):
             self.print_log(type='F', msg='Python model currently not supported')
         elif self.model in [ 'sv', 'icarus' ]:
               # Verilog simulation options here
+              inputnames=[]
+              outputnames=[]
+              for i in range(8):
+                  inputnames.extend(['io_A_%s_real' %(i), 'io_A_%s_imag' %(i)])
+                  outputnames.extend(['io_B_%s_real' %(i), 'io_B_%s_imag' %(i)])
               _=rtl_iofile(self, name='io_A', dir='in', iotype='sample', 
-                      ionames=['io_A_0_real', 'io_A_0_imag'], datatype='scomplex') # IO file for input A
-              _=rtl_iofile(self, name='io_B', dir='out', iotype='sample', 
-                      ionames=['io_B_0_real', 'io_B_0_imag'], datatype='scomplex')
+                      ionames=inputnames, datatype='scomplex') # IO file for input A
+              f=rtl_iofile(self, name='io_B', dir='out', iotype='sample', 
+                      ionames=outputnames, datatype='complex')
+              if self.lang == 'sv':
+                    f.rtl_io_sync='@(negedge clock)'
+              elif self.lang == 'vhdl':
+                    f.rtl_io_sync='falling_edge(clock)'
               self.rtlparameters=dict([ ('g_Rs',('real', self.Rs) )]) #Defines the sample rate
               self.run_rtl()
               # These are strings by default
@@ -208,30 +217,30 @@ if __name__=="__main__":
         d.lang=lang
         d.Rs=rs
         # For debugging
-        #d.preserve_iofiles= True
-        #d.preserve_rtlfiles= True
+        d.preserve_iofiles= True
+        d.preserve_rtlfiles= True
         # To see in Modelsim, what happens in the simulation
         # See Simulations/rtlsim/dofile.do for control
-        # d.interactive_rtl=True
-        d.IOS.Members['io_A'].Data=indata
+        d.interactive_rtl=True
+        d.IOS.Members['io_A'].Data=indata.reshape((128,8))
         # Datafield of control_write IO is a type iofile, 
         # Method rtl.create_connectors adopts it to be iofile of dut.  
         d.IOS.Members['control_write']=controller.IOS.Members['control_write']
         d.init()
         d.run()
-
     # Obs the latencies may be different
+    print(duts[0].IOS.Members['io_B'].Data[:,0])
     latency=[ 0 , 0, 0, 0 ]
     for k in range(len(duts)):
         hfont = {'fontname':'Sans'}
         figure,axes=plt.subplots(2,1,sharex=True)
         #x = np.linspace(0,10,11).reshape(-1,1)
-        axes[0].plot(indata.real)
+        axes[0].plot(indata[:,0].real)
         axes[0].set_ylim(-2**15, 1.1*2**15);
         axes[0].set_xlim((0,indata.shape[0]));
         axes[0].set_ylabel('Input', **hfont,fontsize=18);
         axes[0].grid(True)
-        axes[1].plot(duts[k].IOS.Members['io_B'].Data.real)
+        axes[1].plot(duts[k].IOS.Members['io_B'].Data[:,0].real)
         axes[1].set_ylim(-2**15, 1.1*2**15);
         axes[0].set_xlim((0,duts[k].IOS.Members['io_A'].Data.real.shape[0]));
         axes[1].set_ylabel('Output', **hfont,fontsize=18);
