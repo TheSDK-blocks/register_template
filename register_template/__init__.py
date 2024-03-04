@@ -167,9 +167,6 @@ class register_template(rtl,thesdk):
                     f2.rtl_io_sync='falling_edge(clock)'
               self.rtlparameters=dict([ ('g_Rs',('real', self.Rs) )]) #Defines the sample rate
               self.run_rtl()
-              # These are strings by default
-              self.IOS.Members['io_B'].Data.real=self.IOS.Members['io_B'].Data.real.astype(int)
-              self.IOS.Members['io_B'].Data.imag=self.IOS.Members['io_B'].Data.imag.astype(int)
         else:
             self.print_log(type='F', msg='Requested model currently not supported')
 
@@ -209,6 +206,7 @@ if __name__=="__main__":
     controller.start_datafeed()
 
     models=[ 'icarus' ]
+    #models=[ 'sv' ]
     # Enables VHDL testbench
     #lang='vhdl'
     lang='sv'
