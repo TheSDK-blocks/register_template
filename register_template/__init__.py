@@ -148,7 +148,7 @@ class register_template(rtl,thesdk):
         if self.model=='py':
             #self.main()
             self.print_log(type='F', msg='Python model currently not supported')
-        elif self.model in [ 'sv', 'icarus' ]:
+        elif self.model in [ 'sv', 'icarus', 'verilator' ]:
               # Verilog simulation options here
               inputnames=[]
               outputnames=[]
@@ -204,9 +204,7 @@ if __name__=="__main__":
     controller.reset()
     controller.step_time()
     controller.start_datafeed()
-
-    models=[ 'icarus' ]
-    #models=[ 'sv' ]
+    models=[ 'icarus', 'verilator' ]
     # Enables VHDL testbench
     #lang='vhdl'
     lang='sv'
